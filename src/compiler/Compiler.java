@@ -9,6 +9,7 @@ import compiler.irt.Irt;
 import compiler.semantic.Semantic;
 import compiler.opt.Algebraic;
 import compiler.opt.ConstantFolding;
+import compiler.lib.Debug;
 
 public class Compiler {
     public static void main(String[] args) {
@@ -17,7 +18,7 @@ public class Compiler {
         String outputFilename = "";
         String target = "";
         String opt = "";
-        String debug = "";
+        String debug[] = null;
         String option = "";
         String option2 = "";
 
@@ -35,8 +36,8 @@ public class Compiler {
                         System.out.println("Optimización " + opt);
                         break;
                     case "-debug":
-                        debug = args[++i];
-                        System.out.println("Debug " + args[++i]);
+                        debug = args[++i].split(":");
+                        //System.out.println("Debug " + args[++i]);
                         break;
                     case "-h":
                         printHelp();
@@ -71,13 +72,14 @@ public class Compiler {
         }
 
         Scanner scan;
-        Parser parser;
+        Parser parse;
         Ast ast;
         Semantic semantic;
         Irt irt;
         Codegen codegen;
         ConstantFolding cf;
         Algebraic algebraic;
+        Debug deb = new Debug();
 
         if((args.length > 0) && (!args[0].equals("-h")))
         {
@@ -100,20 +102,32 @@ public class Compiler {
                             target.equals("codegen")) {
                         scan = new Scanner(inputFilename);
 
+                        if (buscarString(debug, "scan")) scan.setDebuger(deb);
+
                         if (target.equals("scan")) exit(0);
-                        parser = new Parser(scan);
+                        parse = new Parser(scan);
+
+                        if (buscarString(debug, "parse")) parse.setDebuger(deb);
 
                         if (target.equals("parse")) exit(0);
-                        ast = new Ast(parser);
+                        ast = new Ast(parse);
+
+                        if (buscarString(debug, "ast")) ast.setDebuger(deb);
 
                         if (target.equals("ast")) exit(0);
                         semantic = new Semantic(ast);
 
+                        if (buscarString(debug, "semantic")) semantic.setDebuger(deb);
+
                         if (target.equals("semantic")) exit(0);
                         irt = new Irt(semantic);
 
+                        if (buscarString(debug, "irt")) irt.setDebuger(deb);
+
                         if (target.equals("irt")) exit(0);
                         codegen = new Codegen(irt);
+
+                        if (buscarString(debug, "codegen")) codegen.setDebuger(deb);
 
                         if (!opt.equals("")) {
                             if (!inputFilename.equals("")) {
@@ -175,5 +189,20 @@ public class Compiler {
     public static void exit(int i)
     {
         System.exit(i);
+    }
+
+    public static boolean buscarString(String[] array, String str)
+    {
+        if (array != null)
+        {
+            for (String e : array)
+            {
+                if (e.equals(str))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
