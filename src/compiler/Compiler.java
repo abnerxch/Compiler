@@ -20,22 +20,7 @@ public class Compiler {
         String debug = "";
         String option = "";
         String option2 = "";
-        /*String filename = "";
-        if(args.length>2)
-        {
-            for (int i=0; i<args.length; i++)
-            {
-                if(i==args.length-3)
-                {
-                    option = args[i];
-                }else if(i==args.length-2){
-                    if(args[i].substring(0,1).equals("-"))
-                    {
-                        option = args[i];
-                    }
-                    else
-                        {
-                        option2 = args[i];*/
+
         if(args.length > 1) {
             for (int i = 0; i < args.length; i++) {
                 switch (args[i]) {
@@ -101,18 +86,6 @@ public class Compiler {
                     if (!outputFilename.equals("")) {
                         outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
                     }
-                    //}
-                    //}
-                /*}
-                else if(i==args.length-1)
-                {
-                    if(args[i].substring(0,1).equals("-"))
-                    {
-                        option = args[i];
-                    }
-                    else
-                        {
-                        filename = args[i];*/
 
                     System.out.println("Input: " + inputFilename);
                     System.out.println("Output: " + outputFilename);
@@ -142,6 +115,30 @@ public class Compiler {
                         if (target.equals("irt")) exit(0);
                         codegen = new Codegen(irt);
 
+                        if (!opt.equals("")) {
+                            if (!inputFilename.equals("")) {
+                                if (outputFilename.equals("")) {
+                                    outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
+                                }
+                                System.out.println("Input: " + inputFilename);
+                                System.out.println("Output: " + outputFilename);
+
+                                if (opt.equals("constant")) {
+                                    cf = new ConstantFolding(inputFilename);
+                                    exit(0);
+                                } else if (opt.equals("algebraic")) {
+                                    algebraic = new Algebraic(inputFilename);
+                                    exit(0);
+                                } else {
+                                    System.out.println("Opción de -opt \"" + opt + "\" es inválida");
+                                }
+                            } else {
+                                System.err.println("Error: no se indicó el archivo o no indicó opción");
+                            }
+                        } else {
+                            System.err.println("Error: no se indicó el archivo o falta la opción");
+                        }
+
                     } else {
                         System.err.println("Opción de -target \"" + target + "\" es inválida");
                     }
@@ -149,45 +146,14 @@ public class Compiler {
                 } else {
                     System.err.println("Error: no se indicó el archivo o no indicó opción");
                 }
+
             }
-            else if(!opt.equals(""))
+            else
             {
-                if(!inputFilename.equals(""))
-                {
-                    if (outputFilename.equals(""))
-                    {
-                        outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
-                    }
-                    System.out.println("Input: " + inputFilename);
-                    System.out.println("Output: " + outputFilename);
+                System.err.println("Error: no se indicó el archivo o no indicó opción");
 
-                    if (opt.equals("constant"))
-                    {
-                        cf = new ConstantFolding(inputFilename); exit(0);
-                    }
-                    else if(opt.equals("algebraic"))
-                    {
-                        algebraic = new Algebraic(inputFilename); exit(0);
-                    }
-                    else
-                        {
-                            System.out.println("Opción de -opt \"" + opt + "\" es inválida");
-                        }
-                }
+            }
 
-                else
-                {
-                    System.err.println("Error: no se indicó el archivo o no indicó opción");
-                }
-        }
-            else {
-            System.err.println("Error: no se indicó el target");
-        }
-    /*}
-
-        else
-        {
-            printHelp();*/
         }
     }
 
