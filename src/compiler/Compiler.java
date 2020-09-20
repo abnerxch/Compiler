@@ -7,6 +7,8 @@ import compiler.ast.Ast;
 import compiler.codegen.Codegen;
 import compiler.irt.Irt;
 import compiler.semantic.Semantic;
+import compiler.opt.Algebraic;
+import compiler.opt.ConstantFolding;
 
 public class Compiler {
     public static void main(String[] args) {
@@ -34,11 +36,9 @@ public class Compiler {
                     else
                         {
                         option2 = args[i];*/
-        if(args.length > 0){
-            for(int i = 0; i < args.length; i++)
-            {
-                switch (args[i])
-                {
+        if(args.length > 1) {
+            for (int i = 0; i < args.length; i++) {
+                switch (args[i]) {
                     case "-o":
                         outputFilename = args[++i];
                         break;
@@ -58,35 +58,50 @@ public class Compiler {
                         exit(0);
                         break;
                     default:
-                        if(Pattern.matches("[^\\-].*\\.[d][c][f]", args[i]) && args.length-1 == i)
-                        {
+                        if (Pattern.matches("[^\\-].*\\.dcf", args[i]) && args.length - 1 == i) {
                             inputFilename = args[i];
+                        } else if (Pattern.matches("[^\\-].*(^\\.)", args[i])) {
+                            System.err.println("Opción " + args[i] + " no reconocida");
+                            System.exit(1);
+                        } else if (!Pattern.matches("[^\\-].*\\.dcf", args[i]) && args.length - 1 == i) {
+                            System.err.println("Archivo " + args[i] + " es inválido");
+                            System.exit(1);
+                        } else {
+                            System.err.println("Opción " + args[i] + " no reconocida");
+                            System.exit(1);
                         }
-                        else
-                            {
-                                System.err.println("Opción " + args[i] + " no reconocida");
-                                System.exit(1);
-                            }
                         break;
                 }
             }
 
-            Scanner scan;
-            Parser parser;
-            Ast ast;
-            Semantic semantic;
-            Irt irt;
-            Codegen codegen;
+        }
+        else if (args.length == 0)
+        {
+            printHelp();
+        }
 
-            if(!target.equals(""))
-            {
-                if(!inputFilename.equals(""))
-                {
-                    if(!outputFilename.equals(""))
-                    {
+        else if ((args[0].equals("-h")) && (args.length == 1))
+        {
+            printHelp();
+        }
+
+        Scanner scan;
+        Parser parser;
+        Ast ast;
+        Semantic semantic;
+        Irt irt;
+        Codegen codegen;
+        ConstantFolding cf;
+        Algebraic algebraic;
+
+        if((args.length > 0) && (!args[0].equals("-h")))
+        {
+            if(!target.equals("")) {
+                if (!inputFilename.equals("")) {
+                    if (!outputFilename.equals("")) {
                         outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
-                }
-            //}
+                    }
+                    //}
                     //}
                 /*}
                 else if(i==args.length-1)
@@ -99,56 +114,82 @@ public class Compiler {
                         {
                         filename = args[i];*/
 
-                System.out.println("Input: " + inputFilename);
-                System.out.println("Output: " + outputFilename);
+                    System.out.println("Input: " + inputFilename);
+                    System.out.println("Output: " + outputFilename);
 
-                // IMPORTANTE
+                    // IMPORTANTE
 
-                if (target.equals("scan") ||
-                        target.equals("parse") ||
-                        target.equals("ast") ||
-                        target.equals("semantic") ||
-                        target.equals("irt") ||
-                        target.equals("codegen"))
+                    if (target.equals("scan") ||
+                            target.equals("parse") ||
+                            target.equals("ast") ||
+                            target.equals("semantic") ||
+                            target.equals("irt") ||
+                            target.equals("codegen")) {
+                        scan = new Scanner(inputFilename);
+
+                        if (target.equals("scan")) exit(0);
+                        parser = new Parser(scan);
+
+                        if (target.equals("parse")) exit(0);
+                        ast = new Ast(parser);
+
+                        if (target.equals("ast")) exit(0);
+                        semantic = new Semantic(ast);
+
+                        if (target.equals("semantic")) exit(0);
+                        irt = new Irt(semantic);
+
+                        if (target.equals("irt")) exit(0);
+                        codegen = new Codegen(irt);
+
+                    } else {
+                        System.err.println("Opción de -target \"" + target + "\" es inválida");
+                    }
+
+                } else {
+                    System.err.println("Error: no se indicó el archivo o no indicó opción");
+                }
+            }
+            else if(!opt.equals(""))
+            {
+                if(!inputFilename.equals(""))
+                {
+                    if (outputFilename.equals(""))
                     {
-                    scan = new Scanner(inputFilename);
+                        outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
+                    }
+                    System.out.println("Input: " + inputFilename);
+                    System.out.println("Output: " + outputFilename);
 
-                    if (target.equals("scan")) exit(0);
-                    parser = new Parser(scan);
-
-                    if(target.equals("parse")) exit(0);
-                    ast = new Ast(parser);
-
-                    if(target.equals("ast")) exit(0);
-                    semantic = new Semantic(ast);
-
-                    if(target.equals("semantic")) exit(0);
-                    irt = new Irt(semantic);
-
-                    if(target.equals("irt")) exit(0);
-                    codegen = new Codegen(irt);
-
+                    if (opt.equals("constant"))
+                    {
+                        cf = new ConstantFolding(inputFilename); exit(0);
+                    }
+                    else if(opt.equals("algebraic"))
+                    {
+                        algebraic = new Algebraic(inputFilename); exit(0);
+                    }
+                    else
+                        {
+                            System.out.println("Opción de -opt \"" + opt + "\" es inválida");
+                        }
                 }
 
-            }
-
-            else
-            {
-                System.err.println("Error: no se indicó el archivo");
-            }
+                else
+                {
+                    System.err.println("Error: no se indicó el archivo o no indicó opción");
+                }
         }
             else {
             System.err.println("Error: no se indicó el target");
         }
-    }
+    /*}
 
         else
         {
-            printHelp();
+            printHelp();*/
         }
     }
-
-
 
     public static void printHelp()
         {
