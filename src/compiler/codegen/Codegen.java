@@ -1,14 +1,20 @@
 package compiler.codegen;
 import compiler.irt.Irt;
 import compiler.lib.Debug;
+import compiler.lib.OutputFile;
 
 public class Codegen {
 
     public Debug debug;
+    public OutputFile of;
 
-    public Codegen(Irt irt)
+    public Codegen(Irt irt) throws Exception
     {
-        System.out.println("Stage: codegen");
+        //System.out.println("Stage: codegen");
+        String msg = "stage: codegen";
+        of = irt.getOutFile();
+        System.out.println(msg);
+        of.writeln(msg);
     }
 
     public void setDebuger(Debug d)
@@ -16,4 +22,10 @@ public class Codegen {
         debug = d;
         debug.println("debugging: Codegen");
     }
+
+    public OutputFile getOutFile()
+    {
+        return of;
+    }
+
 }

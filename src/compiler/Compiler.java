@@ -11,10 +11,11 @@ import compiler.opt.Algebraic;
 import compiler.opt.ConstantFolding;
 import compiler.lib.Debug;
 import compiler.lib.ErrorHandler;
+import compiler.lib.OutputFile;
 
 public class Compiler
 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try
         {
         //System.out.println("Test");
@@ -87,6 +88,7 @@ public class Compiler
             ConstantFolding cf;
             Algebraic algebraic;
             Debug deb = new Debug();
+            OutputFile outFile;
 
             if ((args.length > 0) && (!args[0].equals("-h")))
             {
@@ -98,6 +100,8 @@ public class Compiler
                         {
                             outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
                         }
+
+                        outFile = new OutputFile( outputFilename );
 
                         System.out.println("Input: " + inputFilename);
                         System.out.println("Output: " + outputFilename);
@@ -111,7 +115,7 @@ public class Compiler
                                 target.equals("irt") ||
                                 target.equals("codegen"))
                         {
-                            scan = new Scanner(inputFilename);
+                            scan = new Scanner(inputFilename, outFile);
 
                             if (buscarString(debug, "scan")) scan.setDebuger(deb);
 
@@ -140,13 +144,15 @@ public class Compiler
 
                             if (buscarString(debug, "codegen")) codegen.setDebuger(deb);
 
-                            if (!opt.equals("")) {
+                            if (!opt.equals(""))
+                            {
                                 if (!inputFilename.equals(""))
                                 {
                                     if (outputFilename.equals(""))
                                     {
                                         outputFilename = inputFilename.substring(0, inputFilename.lastIndexOf('.')) + ".s";
                                     }
+                                    //outFile = new OutputFile(outputFilename);
                                     System.out.println("Input: " + inputFilename);
                                     System.out.println("Output: " + outputFilename);
 
