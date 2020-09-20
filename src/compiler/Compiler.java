@@ -119,27 +119,47 @@ public class Compiler
 
                             if (buscarString(debug, "scan")) scan.setDebuger(deb);
 
-                            if (target.equals("scan")) exit(0);
+                            if (target.equals("scan"))
+                            {
+                                if (!opt.equals("")) throw new ErrorHandler("Error: no se puede optimizar en target " + target + ", debe ser codegen");
+                                exit(0);
+                            }
                             parse = new Parser(scan);
 
                             if (buscarString(debug, "parse")) parse.setDebuger(deb);
 
-                            if (target.equals("parse")) exit(0);
+                            if (target.equals("parse"))
+                            {
+                                if(!opt.equals("")) throw new ErrorHandler("Error: No se puede optimizar en " + target + ", debe ser codegen");
+                                exit(0);
+                            }
                             ast = new Ast(parse);
 
                             if (buscarString(debug, "ast")) ast.setDebuger(deb);
 
-                            if (target.equals("ast")) exit(0);
+                            if (target.equals("ast"))
+                            {
+                                if(!opt.equals("")) throw new ErrorHandler("Error: No se puede optimizar en " + target + ", debe ser codegen");
+                                exit(0);
+                            }
                             semantic = new Semantic(ast);
 
                             if (buscarString(debug, "semantic")) semantic.setDebuger(deb);
 
-                            if (target.equals("semantic")) exit(0);
+                            if (target.equals("semantic"))
+                            {
+                                if(!opt.equals("")) throw new ErrorHandler("Error: No se puede optimizar en " + target + ", debe ser codegen");
+                                exit(0);
+                            }
                             irt = new Irt(semantic);
 
                             if (buscarString(debug, "irt")) irt.setDebuger(deb);
 
-                            if (target.equals("irt")) exit(0);
+                            if (target.equals("irt"))
+                            {
+                                if(!opt.equals("")) throw new ErrorHandler("Error: No se puede optimizar en " + target + ", debe ser codegen");
+                                exit(0);
+                            }
                             codegen = new Codegen(irt);
 
                             if (buscarString(debug, "codegen")) codegen.setDebuger(deb);
